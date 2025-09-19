@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Text Generator</title>
+    <style>
+        /* Basic styling for the body */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Main container for the generator */
+        .container {
+            background-color: #ffffff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Container for the input field and copy button */
+        .result-container {
+            display: flex;
+            margin-bottom: 1.5rem;
+        }
+
+        /* The input field that displays the generated text */
+        #result-input {
+            flex-grow: 1;
+            padding: 0.75rem;
+            border: 1px solid #dddfe2;
+            border-radius: 6px 0 0 6px;
+            font-size: 1rem;
+            background-color: #f5f6f7;
+            color: #333;
+            outline: none; /* Removes the default browser outline */
+        }
+
+        /* General button styling */
+        button {
+            padding: 0.75rem 1.25rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        button:active {
+            transform: scale(0.98); /* Slight press-down effect */
+        }
+
+        /* Specific styling for the copy button */
+        #copy-btn {
+            background-color: #1877f2;
+            color: white;
+            border-radius: 0 6px 6px 0;
+        }
+
+        #copy-btn:hover {
+            background-color: #166fe5;
+        }
+
+        /* Container for the length selection buttons */
+        .options-container p {
+            margin-bottom: 0.75rem;
+            color: #606770;
+        }
+
+        .options-container button {
+            background-color: #e4e6eb;
+            color: #4b4f56;
+            margin: 0 0.25rem;
+        }
+
+        .options-container button:hover {
+            background-color: #dcdfe3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Random Text Generator</h1>
+
+    <div class="result-container">
+        <input type="text" id="result-input" readonly placeholder="Click a length to generate text...">
+        <button id="copy-btn">Copy</button>
+    </div>
+
+    <div class="options-container">
+        <p><strong>Select Length:</strong></p>
+        <button class="length-btn" data-length="64">64</button>
+        <button class="length-btn" data-length="32">32</button>
+        <button class="length-btn" data-length="24">24</button>
+    </div>
+</div>
+
+<script>
+    // --- DOM Element Selection ---
+    const resultInput = document.getElementById('result-input');
+    const copyBtn = document.getElementById('copy-btn');
+    const lengthBtns = document.querySelectorAll('.length-btn');
+
+    // --- Character Set ---
+    // The pool of characters to choose from for the random string.
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-+=@';
+
+    /**
+     * Generates a random string of a specified length.
+     * @param {number} length - The desired length of the string.
+     * @returns {string} The generated random string.
+     */
+    function generateRandomText(length) {
+        let result = '';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+            // Pick a random character from the 'characters' string
+            const randomIndex = Math.floor(Math.random() * charactersLength);
+            result += characters.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    // --- Event Listeners ---
+
+    // Add a click event listener to each length button.
+    lengthBtns.forEach(button => {
+        button.addEventListener('click', () => {
+            // Get the length from the button's 'data-length' attribute.
+            const length = parseInt(button.dataset.length, 10);
+
+            // Generate the random text and display it in the input field.
+            resultInput.value = generateRandomText(length);
+
+            // Reset the copy button text in case it said "Copied!".
+            copyBtn.textContent = 'Copy';
+        });
+    });
+
+    // Add a click event listener to the copy button.
+    copyBtn.addEventListener('click', () => {
+        const textToCopy = resultInput.value;
+
+        // Do nothing if the input field is empty.
+        if (!textToCopy) {
+            return;
+        }
+
+        // Use the modern Navigator Clipboard API to copy the text.
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            // Provide visual feedback to the user.
+            copyBtn.textContent = 'Copied! ✅';
+
+            // Revert the button text back to "Copy" after 2 seconds.
+            setTimeout(() => {
+                copyBtn.textContent = 'Copy';
+            }, 2000);
+        }).catch(err => {
+            // Log an error if the copy action fails.
+            console.error('Failed to copy text: ', err);
+        });
+    });
+    // --- Initialize on Page Load ---
+    // This function runs when the page is fully loaded.
+    document.addEventListener('DOMContentLoaded', () => {
+        // Generate a random string of 64 characters by default.
+        resultInput.value = generateRandomText(64);
+    });
+</script>
+
+</body>
+</html>
