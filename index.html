@@ -113,96 +113,84 @@
     </div>
 </div>
 
-<script>
-    // --- DOM Element Selection ---
-    const resultInput = document.getElementById('result-input');
-    const copyBtn = document.getElementById('copy-btn');
-    const lengthBtns = document.querySelectorAll('.length-btn');
+    <script>
+        // --- DOM Element Selection ---
+        const resultInput = document.getElementById('result-input');
+        const copyBtn = document.getElementById('copy-btn');
+        const lengthBtns = document.querySelectorAll('.length-btn');
 
-    // --- Character Set ---
-    // The pool of characters to choose from for the random string.
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._-+=@';
+        // --- Character Sets ---
+        const lowerCaseChars = 'abcdefghijklmnopqrstuvwxyz';
+        const upperCaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const numberChars = '0123456789';
+        const specialChars = '._-+=@';
+        const allChars = lowerCaseChars + upperCaseChars + numberChars + specialChars;
 
-    /**
-     * Generates a random string of a specified length.
-     * @param {number} length - The desired length of the string.
-     * @returns {string} The generated random string.
-     */
-    function generateRandomText(length) {
-        // This function ensures the minimum requirements are met.
-        const getChars = (charSet, count) => {
-            let result = '';
-            for (let i = 0; i < count; i++) {
-                const randomIndex = Math.floor(Math.random() * charSet.length);
-                result += charSet[randomIndex];
-            }
-            return result;
-        };
+        /**
+         * Generates a random string ensuring it contains a minimum number of
+         * uppercase, lowercase, numeric, and special characters.
+         * @param {number} length - The desired length of the string.
+         * @returns {string} The generated random string.
+         */
+        function generateRandomText(length) {
+            // This function ensures the minimum requirements are met.
+            const getChars = (charSet, count) => {
+                let result = '';
+                for (let i = 0; i < count; i++) {
+                    const randomIndex = Math.floor(Math.random() * charSet.length);
+                    result += charSet[randomIndex];
+                }
+                return result;
+            };
 
-        // 1. Start with the guaranteed characters
-        let guaranteedPart = '';
-        guaranteedPart += getChars(lowerCaseChars, 3);
-        guaranteedPart += getChars(upperCaseChars, 3);
-        guaranteedPart += getChars(numberChars, 3);
-        guaranteedPart += getChars(specialChars, 3);
+            // 1. Start with the guaranteed characters
+            let guaranteedPart = '';
+            guaranteedPart += getChars(lowerCaseChars, 3);
+            guaranteedPart += getChars(upperCaseChars, 3);
+            guaranteedPart += getChars(numberChars, 3);
+            guaranteedPart += getChars(specialChars, 3);
 
-        // 2. Fill the rest of the string with random characters from all sets
-        const remainingLength = length - guaranteedPart.length;
-        let remainingPart = getChars(allChars, remainingLength);
+            // 2. Fill the rest of the string with random characters from all sets
+            const remainingLength = length - guaranteedPart.length;
+            let remainingPart = getChars(allChars, remainingLength);
 
-        // 3. Combine and shuffle the parts to ensure randomness
-        let combined = guaranteedPart + remainingPart;
-        let shuffledArray = combined.split('').sort(() => 0.5 - Math.random());
-        
-        return shuffledArray.join('');
-    }
-
-    // --- Event Listeners ---
-
-    // Add a click event listener to each length button.
-    lengthBtns.forEach(button => {
-        button.addEventListener('click', () => {
-            // Get the length from the button's 'data-length' attribute.
-            const length = parseInt(button.dataset.length, 10);
-
-            // Generate the random text and display it in the input field.
-            resultInput.value = generateRandomText(length);
-
-            // Reset the copy button text in case it said "Copied!".
-            copyBtn.textContent = 'Copy';
-        });
-    });
-
-    // Add a click event listener to the copy button.
-    copyBtn.addEventListener('click', () => {
-        const textToCopy = resultInput.value;
-
-        // Do nothing if the input field is empty.
-        if (!textToCopy) {
-            return;
+            // 3. Combine and shuffle the parts to ensure randomness
+            let combined = guaranteedPart + remainingPart;
+            let shuffledArray = combined.split('').sort(() => 0.5 - Math.random());
+            
+            return shuffledArray.join('');
         }
 
-        // Use the modern Navigator Clipboard API to copy the text.
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            // Provide visual feedback to the user.
-            copyBtn.textContent = 'Copied! ✅';
+        // --- Event Listeners ---
 
-            // Revert the button text back to "Copy" after 2 seconds.
-            setTimeout(() => {
+        lengthBtns.forEach(button => {
+            button.addEventListener('click', () => {
+                const length = parseInt(button.dataset.length, 10);
+                resultInput.value = generateRandomText(length);
                 copyBtn.textContent = 'Copy';
-            }, 2000);
-        }).catch(err => {
-            // Log an error if the copy action fails.
-            console.error('Failed to copy text: ', err);
+            });
         });
-    });
-    // --- Initialize on Page Load ---
-    // This function runs when the page is fully loaded.
-    document.addEventListener('DOMContentLoaded', () => {
-        // Generate a random string of 64 characters by default.
-        resultInput.value = generateRandomText(64);
-    });
-</script>
+
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = resultInput.value;
+            if (!textToCopy) return;
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                copyBtn.textContent = 'Copied! ✅';
+                setTimeout(() => {
+                    copyBtn.textContent = 'Copy';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+            });
+        });
+
+        // --- Initialize on Page Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            resultInput.value = generateRandomText(64);
+        });
+    </script>
+
 
 </body>
 </html>
